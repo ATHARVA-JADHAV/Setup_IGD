@@ -1,0 +1,20 @@
+
+{
+    "name": "project-name",
+    "tree": {
+  
+      "$className": "DataModel",
+      "$ignoreUnknownInstances": true,
+  
+      "ServerScriptService": { "Server": {"$path": "src/Server"} },
+      "StarterPlayer": { "StarterPlayerScripts" : { "Client": {"$path": "src/Client"} }},
+      
+      "ReplicatedStorage": {
+        "$ignoreUnknownInstances": false,
+        "$path": "src/Shared",
+        "Modules": { "$path": "src/Shared/Modules" },
+        "Assets":{"$path":"src/Shared/Assets"},
+        "Packages": { "$path": "Packages" }
+      }
+    }
+  }
