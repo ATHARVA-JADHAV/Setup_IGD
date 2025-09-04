@@ -1,9 +1,11 @@
 -- Client-side inventory handler
 local Inventory = {}
 
--- /Imports
-local DebugManager = require(script.Parent.Parent.Parent.Shared.DebugManager)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- /Imports
+local DebugManager = require(ReplicatedStorage.Modules.DebugManager)
+
 
 function Inventory:Initialize()
     DebugManager:Log("Inventory system initialized.")
