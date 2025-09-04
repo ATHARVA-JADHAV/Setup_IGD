@@ -7,15 +7,53 @@ local schematic = {
         Gems = 50       -- Starting gems
     },
     
-    Inventory = {},     -- Array of inventory items
+    Inventory = {
+        Items = {       -- Default items every new player gets
+            {
+                id = "default_rpg_001",
+                Class = "BasicRPG",  -- Change this to match your actual RPG class name
+                type = "tool",
+                category = "rpg",
+                quantity = 1,
+                data = {}
+            }
+        },     
+        MaxSlots = 30,  -- Maximum inventory slots
+        LastItemId = 1  -- Start at 1 since we have 1 default item
+    },
     
-    Level = 1,          -- Player level
-    Experience = 0,     -- Current experience points
+    Equipment = {
+        EquippedWeapon = nil -- Currently equipped weapon data {id, Class, category}
+    },
+    
+    Stats = {
+        Level = 1,          -- Player level
+        Experience = 0,     -- Current experience points
+        TotalKills = 0,     -- Total enemy kills
+        TotalDeaths = 0,    -- Total deaths
+        PlayTime = 0        -- Total play time in seconds
+    },
+    
+    Weapons = {
+        UnlockedWeapons = { -- List of unlocked weapon classes
+            "BasicRPG"      -- Starting weapon - always unlocked
+        },
+        WeaponStats = {}    -- Per-weapon statistics {[weaponClass] = {kills, shots, accuracy}}
+    },
+    
+    -- Session data (not saved, reset each session)
+    Session = {
+        JoinTime = 0,       -- When player joined this session
+        SessionKills = 0,   -- Kills this session
+        SessionDeaths = 0   -- Deaths this session
+    },
     
     -- Timestamps
-    lastjoined = 0,     -- Last join timestamp
-    created = 0,        -- Account creation timestamp
-    
+    Timestamps = {
+        LastJoined = 0,     -- Last join timestamp
+        Created = 0,        -- Account creation timestamp
+        LastSave = 0        -- Last data save timestamp
+    }
 }
 
 return schematic

@@ -6,7 +6,7 @@ ReplicatorComponent.__index = ReplicatorComponent;
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
 -- / Imports:
-
+local DebugManager = require(ReplicatedStorage.Modules.DebugManager);
 local bridgenet2 = require(ReplicatedStorage.Packages.bridgenet2);
 
 -- / Functions:
@@ -17,7 +17,7 @@ function ReplicatorComponent.Construct(entity)
     self.Player = entity.Player  -- uppercase P
 
     if not self.Player then
-        warn("No Player found for ReplicatorComponent")
+        DebugManager.warn('REPLICATOR', "No Player found for ReplicatorComponent")
         return self
     end
 
@@ -27,11 +27,13 @@ function ReplicatorComponent.Construct(entity)
     self.bridges = {
     _self = bridgenet2.ReferenceBridge(`{uuid}_self`),
     TestCont = bridgenet2.ReferenceBridge(`{uuid}_TestCont`),
-    -- Inventory = bridgenet2.ReferenceBridge(`{uuid}_Inventory`);
+    Inventory = bridgenet2.ReferenceBridge(`{uuid}_Inventory`);
+    Weapon = bridgenet2.ReferenceBridge(`{uuid}_Weapon`) 
+
     }
         
     self.bridges._self:Connect(function(player, content)
-    warn("[Replicator] _self bridge received:", content)
+    DebugManager.warn('REPLICATOR', "_self bridge received:", content)
     end)
     return self
 end

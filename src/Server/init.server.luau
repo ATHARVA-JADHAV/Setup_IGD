@@ -67,9 +67,11 @@ end)
 
 -- Load all systems:
 
-for _, sysmodule  in script.Systems:GetChildren() do
-
-    local m = require(sysmodule);
-    m.Initialize();
-
+for _, sysmodule in ipairs(script.Systems:GetChildren()) do
+    if sysmodule:IsA("ModuleScript") then
+        local m = require(sysmodule)
+        if m.Initialize then
+            m.Initialize()
+        end
+    end
 end

@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService('ReplicatedStorage');
 local Players = game:GetService('Players');
 
 -- / Imports:
+local DebugManager = require(ReplicatedStorage.Modules.DebugManager);
 local Component = require(script.Parent.__Component);
 setmetatable(DataComponent, Component);
 
@@ -13,7 +14,7 @@ local ProfileService = require(script.ProfileService);
 local schematic = require(script.Schematic);
 
 -- ProfileStore with your specified version
-local Store = ProfileService.GetProfileStore(`v/taf/dev_02|A`, schematic)
+local Store = ProfileService.GetProfileStore(`v/taf/dev_04|A`, schematic)
 
 -- / Functions:
 function DataComponent.Construct(entity)
@@ -29,18 +30,17 @@ end
 function DataComponent:_Initialize()
     local player = self.Player;
     
-    print("[DataComponent] Loading profile for player:", player.Name, "UserId:", player.UserId)
-    
+    DebugManager.print('DATA', "Loading profile for player:", player.Name, "UserId:", player.UserId)    
     -- Load the player's profile
     local profile = Store:LoadProfileAsync("Player_" .. tostring(player.UserId))
     
     -- Check if profile loaded successfully and player is still in game
     if not profile then
-        warn("[DataComponent] Failed to load profile for:", player.Name)
+        DebugManager.warn('DATA', "Failed to load profile for:", player.Name)
         player:Kick("Failed to load data. Please rejoin.")
         return
     end
-    
+     
     if not player.Parent then -- Player left during loading
         profile:Release()
         return
@@ -60,32 +60,39 @@ function DataComponent:_Initialize()
     self.data_loaded = true
     
     -- Update last joined time
-    self.replica.lastjoined = os.time()
+    self.replica.Timestamps.LastJoined = os.time()
     
-    print("[DataComponent] Profile loaded successfully for:", player.Name)
-    print("[DataComponent] Current Cash:", self.replica.Currencies.Cash)
-    print("[DataComponent] Current Gems:", self.replica.Currencies.Gems)
-    print("[DataComponent] Inventory items:", #self.replica.Inventory)
+    DebugManager.print('DATA', "Profile loaded successfully for:", player.Name)
+    DebugManager.print('DATA', "Current Cash:", self.replica.Currencies.Cash)
+    DebugManager.print('DATA', "Current Gems:", self.replica.Currencies.Gems)
+    DebugManager.print('DATA', "Inventory items:", #self.replica.Inventory.Items) -- Fixed: Access Items array
     
     return 'Loaded'
 end
 
 function DataComponent:Initialize()
-    print("[DataComponent] Component initialized for:", self.Player.Name)
+    DebugManager.print('DATA',"Component initialized for:", self.Player.Name)
 end
 
 function DataComponent:Deploy()
-    print("[DataComponent] Component deployed for:", self.Player.Name)
+   DebugManager.print('DATA',"Component deployed for:", self.Player.Name)
+end
+
+function DataComponent:GetData()
+    if not self.data_loaded then
+        return nil
+    end
+    return self.replica
 end
 
 function DataComponent:EditCurrency(currency, operation, difference)
     if not self.data_loaded then
-        warn("[DataComponent] Data not loaded yet for player:", self.Player.Name)
+        DebugManager.warn('DATA',"Data not loaded yet for player:", self.Player.Name)
         return
     end
     
     if not self.replica.Currencies[currency] then
-        warn("[DataComponent] Currency not found:", currency)
+        DebugManager.warn('DATA',"Currency not found:", currency)
         return
     end
     
@@ -93,7 +100,7 @@ function DataComponent:EditCurrency(currency, operation, difference)
     local replicator = self.entity:GetComponents('Replicator')
     
     if not replicator then
-        warn("[DataComponent] No replicator found")
+        DebugManager.warn('DATA',"No replicator found")
         return
     end
     
@@ -133,21 +140,22 @@ function DataComponent:AddToInventory(item)
         return
     end
     
-    -- Ensure inventory exists
-    if not self.replica.Inventory then
-        self.replica.Inventory = {}
+    -- Ensure inventory Items exists
+    if not self.replica.Inventory or not self.replica.Inventory.Items then
+        if not self.replica.Inventory then
+            self.replica.Inventory = {}
+        end
+        self.replica.Inventory.Items = {}
     end
     
-    -- Add UUID if not present
-    if not item.UUID then
-        item.UUID = game:GetService("HttpService"):GenerateGUID(false)
+    -- Generate new item ID if not present
+    if not item.id then
+        self.replica.Inventory.LastItemId = (self.replica.Inventory.LastItemId or 0) + 1
+        item.id = string.format("item_%03d", self.replica.Inventory.LastItemId)
     end
     
-    -- Add index
-    item.Index = #self.replica.Inventory + 1
-    
-    table.insert(self.replica.Inventory, item)
-    print("[DataComponent] Added item to inventory:", item.Name or item.UUID)
+    table.insert(self.replica.Inventory.Items, item)
+    DebugManager.print('DATA',"Added item to inventory:", item.id, "Class:", item.Class)
     
     -- Notify inventory component if it exists
     local inventoryComponent = self.entity:GetComponent('Inventory')
@@ -156,27 +164,27 @@ function DataComponent:AddToInventory(item)
     end
 end
 
-function DataComponent:RemoveFromInventory(index)
+function DataComponent:RemoveFromInventory(itemId)
     if not self.data_loaded then
         warn("[DataComponent] Data not loaded yet")
         return
     end
     
-    if not self.replica.Inventory[index] then
-        warn("[DataComponent] No item at inventory index:", index)
+    if not self.replica.Inventory or not self.replica.Inventory.Items then
+        warn("[DataComponent] No inventory items to remove")
         return
     end
     
-    local removedItem = table.remove(self.replica.Inventory, index)
-    
-    -- Update indices for remaining items
-    for i = index, #self.replica.Inventory do
-        self.replica.Inventory[i].Index = i
+    for i, item in ipairs(self.replica.Inventory.Items) do
+        if item.id == itemId then
+            local removedItem = table.remove(self.replica.Inventory.Items, i)
+            DebugManager.print('DATA',"Removed item from inventory:", removedItem.id)
+            return removedItem
+        end
     end
     
-    print("[DataComponent] Removed item from inventory:", removedItem.Name or removedItem.UUID)
-    
-    return removedItem
+    warn("[DataComponent] Item not found in inventory:", itemId)
+    return nil
 end
 
 function DataComponent:GetCurrency(currency)
@@ -190,14 +198,14 @@ function DataComponent:GetInventory()
     if not self.data_loaded then
         return {}
     end
-    return self.replica.Inventory or {}
+    return self.replica.Inventory and self.replica.Inventory.Items or {}
 end
 
 function DataComponent:GetLevel()
     if not self.data_loaded then
         return 1
     end
-    return self.replica.Level or 1
+    return self.replica.Stats and self.replica.Stats.Level or 1
 end
 
 function DataComponent:AddExperience(amount)
@@ -205,8 +213,12 @@ function DataComponent:AddExperience(amount)
         return
     end
     
-    self.replica.Experience = (self.replica.Experience or 0) + amount
-    print("[DataComponent] Added", amount, "experience. Total:", self.replica.Experience)
+    if not self.replica.Stats then
+        self.replica.Stats = {Level = 1, Experience = 0}
+    end
+    
+    self.replica.Stats.Experience = (self.replica.Stats.Experience or 0) + amount
+    DebugManager.print('DATA',"Added", amount, "experience. Total:", self.replica.Stats.Experience)
     
     -- can add level-up logic here
 end
@@ -218,16 +230,16 @@ function DataComponent:_GenerateReplicableTuple()
         return {}
     end
     
-    print("[DataComponent] Generating replicable data for:", self.Player.Name)
-    print("[DataComponent] Cash:", self.replica.Currencies.Cash)
-    print("[DataComponent] Gems:", self.replica.Currencies.Gems)
-    print("[DataComponent] Inventory items:", #self.replica.Inventory)
+    DebugManager.print('DATA',"Generating replicable data for:", self.Player.Name)
+    DebugManager.print('DATA',"Cash:", self.replica.Currencies.Cash)
+    DebugManager.print('DATA',"Gems:", self.replica.Currencies.Gems)
+    DebugManager.print('DATA',"Inventory items:", self.replica.Inventory and #self.replica.Inventory.Items or 0)
     
     return self.replica
 end
 
 function DataComponent:Release()
-    print("[DataComponent] Releasing profile for:", self.Player.Name)
+    DebugManager.print('DATA',"Releasing profile for:", self.Player.Name)
     
     -- Release the ProfileService profile (this saves the data)
     if self.profile and self.profile.Release then

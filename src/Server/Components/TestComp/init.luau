@@ -44,20 +44,20 @@ function TestComp:Trigger()
 
     self:TestCurrency()
 
-    task.spawn(function()
-        for i = 1, 10 do
-            self.count = i
-            print("[TestComp] Sending count:", i)
+    -- task.spawn(function()
+    --     for i = 1, 10 do
+    --         self.count = i
+    --         print("[TestComp] Sending count:", i)
             
-            local uuid = tostring(self.entity.Player.UserId)
-            self.replicator:StreamToClient('TestCont', {
-                Function = "UpdateCount",
-                Args = { self.count }
-            })
+    --         local uuid = tostring(self.entity.Player.UserId)
+    --         self.replicator:StreamToClient('TestCont', {
+    --             Function = "UpdateCount",
+    --             Args = { self.count }
+    --         })
 
-            task.wait(1)
-        end
-    end)
+    --         task.wait(1)
+    --     end
+    -- end)
 end
 
 return TestComp
