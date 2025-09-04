@@ -12,8 +12,6 @@
       "ReplicatedStorage": {
         "$ignoreUnknownInstances": false,
         "$path": "src/Shared",
-        "Modules": { "$path": "src/Shared/Modules" },
-        "Assets":{"$path":"src/Shared/Assets"},
         "Packages": { "$path": "Packages" }
       }
     }

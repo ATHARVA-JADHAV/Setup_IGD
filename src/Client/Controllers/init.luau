@@ -13,6 +13,7 @@ local bridgenet2 = require(ReplicatedStorage.Packages.bridgenet2);
 
 --Controllers
 local TestCont = require(script.TestCont);
+local Inventory = require(script.Inventory.Inventory);
 
 --Functions
 
@@ -50,6 +51,7 @@ function Controllers:Initialize(data_replica : {})
     self.controllers = {};
 
     self.controllers.TestCont = TestCont.Construct(self)
+    self.controllers.Inventory = Inventory.Construct(self, data_replica);
 
     for _, controller in self.controllers do 
         if controller.Initialize then controller:Initialize() end

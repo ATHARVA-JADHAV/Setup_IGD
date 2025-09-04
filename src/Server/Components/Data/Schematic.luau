@@ -11,7 +11,7 @@ local schematic = {
         Items = {       -- Default items every new player gets
             {
                 id = "default_rpg_001",
-                Class = "BasicRPG",  -- Change this to match your actual RPG class name
+                Class = "BasicRPG",  
                 type = "tool",
                 category = "rpg",
                 quantity = 1,
@@ -19,11 +19,11 @@ local schematic = {
             }
         },     
         MaxSlots = 30,  -- Maximum inventory slots
-        LastItemId = 1  -- Start at 1 since we have 1 default item
+        LastItemId = 1  
     },
     
     Equipment = {
-        EquippedWeapon = nil -- Currently equipped weapon data {id, Class, category}
+        EquippedWeapon = nil 
     },
     
     Stats = {
