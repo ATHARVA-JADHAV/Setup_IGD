@@ -32,11 +32,11 @@ end
 function Controller:Load()
     self.children['TestCont'] = TestCont.Construct(self) -- Use self.children, not self._controllers
     
-    for _, v in self.children do -- Use self.children
+    for _, v in self.children do 
         if v.Initialize then v:Initialize() end
     end
     
-    for _, v in self.children do -- Use self.children  
+    for _, v in self.children do
         if v.Deploy then v:Deploy() end
     end
 end

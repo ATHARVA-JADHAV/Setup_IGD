@@ -113,7 +113,6 @@ function DataComponent:EditCurrency(currency, operation, difference)
     
     operations[operation]()
     
-    -- Ensure non-negative values and update replica
     current = math.max(0, current)
     self.replica.Currencies[currency] = math.ceil(current)
     
@@ -209,7 +208,7 @@ function DataComponent:AddExperience(amount)
     self.replica.Experience = (self.replica.Experience or 0) + amount
     print("[DataComponent] Added", amount, "experience. Total:", self.replica.Experience)
     
-    -- You can add level-up logic here
+    -- can add level-up logic here
 end
 
 -- Generates data tuple to send to client

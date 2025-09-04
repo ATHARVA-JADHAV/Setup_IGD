@@ -39,14 +39,12 @@ function Entity:Initialize()
 
     self.Components.TestComp = TestComp.Construct(self)
     
-    -- Move the debug print here to see actual components
     print("[Entity] Initialized components:", table.concat((function()
         local keys = {}
         for k,_ in pairs(self.Components) do table.insert(keys, k) end
         return keys
     end)(), ", "))
     
-    -- Actually initialize the components
     for name, component in pairs(self.Components) do
         if component.Initialize then
             print("[Entity] Initializing component:", name)

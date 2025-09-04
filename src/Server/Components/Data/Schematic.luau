@@ -16,19 +16,6 @@ local schematic = {
     lastjoined = 0,     -- Last join timestamp
     created = 0,        -- Account creation timestamp
     
-    -- Settings (optional)
-    Settings = {
-        MusicVolume = 0.5,
-        SFXVolume = 0.8,
-        UIScale = 1.0
-    },
-    
-    -- Statistics (optional)
-    Stats = {
-        TotalPlayTime = 0,
-        ItemsCrafted = 0,
-        QuestsCompleted = 0
-    }
 }
 
 return schematic

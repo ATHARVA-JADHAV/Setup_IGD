@@ -14,7 +14,7 @@ local bridgenet2 = require(ReplicatedStorage.Packages.bridgenet2);
 function ReplicatorComponent.Construct(entity)
     local self = setmetatable({}, ReplicatorComponent)
 
-    self.Player = entity.Player  -- uppercase P, consistent
+    self.Player = entity.Player  -- uppercase P
 
     if not self.Player then
         warn("No Player found for ReplicatorComponent")
@@ -31,7 +31,6 @@ function ReplicatorComponent.Construct(entity)
     }
         
     self.bridges._self:Connect(function(player, content)
-    -- Optionally just log or handle commands from the client
     warn("[Replicator] _self bridge received:", content)
     end)
     return self
