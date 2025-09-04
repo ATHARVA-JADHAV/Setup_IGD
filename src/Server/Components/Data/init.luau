@@ -13,7 +13,6 @@ setmetatable(DataComponent, Component);
 local ProfileService = require(script.ProfileService);
 local schematic = require(script.Schematic);
 
--- ProfileStore with your specified version
 local Store = ProfileService.GetProfileStore(`v/taf/dev_04|A`, schematic)
 
 -- / Functions:
@@ -31,17 +30,16 @@ function DataComponent:_Initialize()
     local player = self.Player;
     
     DebugManager.print('DATA', "Loading profile for player:", player.Name, "UserId:", player.UserId)    
-    -- Load the player's profile
+
     local profile = Store:LoadProfileAsync("Player_" .. tostring(player.UserId))
     
-    -- Check if profile loaded successfully and player is still in game
     if not profile then
         DebugManager.warn('DATA', "Failed to load profile for:", player.Name)
         player:Kick("Failed to load data. Please rejoin.")
         return
     end
      
-    if not player.Parent then -- Player left during loading
+    if not player.Parent then 
         profile:Release()
         return
     end
@@ -54,7 +52,6 @@ function DataComponent:_Initialize()
         player:Kick("Data session ended. Please rejoin.")
     end)
     
-    -- Store profile and data references
     self.profile = profile
     self.replica = profile.Data
     self.data_loaded = true
@@ -140,7 +137,6 @@ function DataComponent:AddToInventory(item)
         return
     end
     
-    -- Ensure inventory Items exists
     if not self.replica.Inventory or not self.replica.Inventory.Items then
         if not self.replica.Inventory then
             self.replica.Inventory = {}
@@ -148,7 +144,6 @@ function DataComponent:AddToInventory(item)
         self.replica.Inventory.Items = {}
     end
     
-    -- Generate new item ID if not present
     if not item.id then
         self.replica.Inventory.LastItemId = (self.replica.Inventory.LastItemId or 0) + 1
         item.id = string.format("item_%03d", self.replica.Inventory.LastItemId)
@@ -241,7 +236,7 @@ end
 function DataComponent:Release()
     DebugManager.print('DATA',"Releasing profile for:", self.Player.Name)
     
-    -- Release the ProfileService profile (this saves the data)
+    -- Release the ProfileService profile 
     if self.profile and self.profile.Release then
         self.profile:Release()
     end
